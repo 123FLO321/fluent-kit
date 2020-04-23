@@ -106,11 +106,11 @@ extension ChildrenProperty: AnyProperty {
         []
     }
 
-    public func input(to input: inout DatabaseInput) {
+    public func input(to input: inout DatabaseInput, db: Database) {
         // children never has input
     }
 
-    public func output(from output: DatabaseOutput) throws {
+    public func output(from output: DatabaseOutput, db: Database) throws {
         let key = From()._$id.field.key
         if output.contains([key]) {
             self.idValue = try output.decode(key, as: From.IDValue.self)

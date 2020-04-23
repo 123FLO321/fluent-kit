@@ -57,15 +57,15 @@ extension GroupProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput) {
-        let values = self.value!.input.values
+    public func input(to input: inout DatabaseInput, db: Database) {
+        let values = self.value!.input(db: db).values
         if !values.isEmpty {
             input.values[self.key] = .dictionary(values)
         }
     }
 
-    public func output(from output: DatabaseOutput) throws {
-        try self.value!.output(from: output.nested(self.key))
+    public func output(from output: DatabaseOutput, db: Database) throws {
+        try self.value!.output(from: output.nested(self.key), db: db)
     }
 
     public func encode(to encoder: Encoder) throws {

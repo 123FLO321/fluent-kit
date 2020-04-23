@@ -77,12 +77,12 @@ extension OptionalEnumProperty: AnyProperty {
         []
     }
 
-    public func input(to input: inout DatabaseInput) {
-        self.field.input(to: &input)
+    public func input(to input: inout DatabaseInput, db: Database) {
+        self.field.input(to: &input, db: db)
     }
 
-    public func output(from output: DatabaseOutput) throws {
-        try self.field.output(from: output)
+    public func output(from output: DatabaseOutput, db: Database) throws {
+        try self.field.output(from: output, db: db)
     }
 
     public func encode(to encoder: Encoder) throws {

@@ -1,5 +1,6 @@
 public protocol Database {
     var context: DatabaseContext { get }
+    var type: DatabaseType { get }
     
     func execute(
         query: DatabaseQuery,

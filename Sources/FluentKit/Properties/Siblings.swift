@@ -189,11 +189,11 @@ extension SiblingsProperty: AnyProperty {
         []
     }
     
-    public func input(to input: inout DatabaseInput) {
+    public func input(to input: inout DatabaseInput, db: Database) {
         // siblings never has input
     }
 
-    public func output(from output: DatabaseOutput) throws {
+    public func output(from output: DatabaseOutput, db: Database) throws {
         let key = From()._$id.key
         if output.contains(key) {
             self.idValue = try output.decode(key, as: From.IDValue.self)
@@ -272,7 +272,7 @@ private struct SiblingsEagerLoader<From, To, Through>: EagerLoader
         {
             var map: [From.IDValue: [To]] = [:]
             for to in $0 {
-                let fromID = try to.joined(Through.self)[keyPath: from].id
+                let fromID = try to.joined(Through.self, db: database)[keyPath: from].id
                 map[fromID, default: []].append(to)
             }
             for model in models {

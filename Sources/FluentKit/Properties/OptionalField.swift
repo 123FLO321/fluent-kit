@@ -70,11 +70,11 @@ extension OptionalFieldProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput) {
+    public func input(to input: inout DatabaseInput, db: Database) {
         input.values[self.key] = self.inputValue
     }
 
-    public func output(from output: DatabaseOutput) throws {
+    public func output(from output: DatabaseOutput, db: Database) throws {
         if output.contains(self.key) {
             self.inputValue = nil
             do {

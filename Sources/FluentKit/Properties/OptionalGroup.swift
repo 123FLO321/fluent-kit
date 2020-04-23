@@ -28,7 +28,7 @@ public final class OptionalGroupProperty<Model, Value>
 
     public init(key: FieldKey, existsKey: FieldKey = .string("exists")) {
         self.key = key
-        self._exists = .init(key: key)
+        self._exists = .init(key: existsKey)
         self.value = .init()
     }
 
@@ -54,27 +54,41 @@ extension OptionalGroupProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput) {
-        if var values = self.value?.input.values, !values.isEmpty {
-            values[$exists.key] = .bind(true)
+    public func input(to input: inout DatabaseInput, db: Database) {
+        if var values = self.value?.input(db: db).values {
+            if db.type != .nosql {
+                values[$exists.key] = .bind(true)
+            }
             input.values[self.key] = .dictionary(values)
+        } else if db.type == .nosql {
+            input.values[self.key] = .null
         } else {
             input.values[self.key] = .dictionary([$exists.key: .bind(false)])
         }
     }
 
-    public func output(from output: DatabaseOutput) throws {
-        let existsPath = path + [$exists.key]
-        if output.contains(existsPath) {
-            if try output.decode(existsPath, as: Bool.self) == true {
-                let value = Value()
-                try value.output(from: output.nested(self.key))
-                self.value = value
-            } else {
+    public func output(from output: DatabaseOutput, db: Database) throws {
+        if db.type == .nosql {
+            if try output.decodeNil(self.path) {
                 self.value = nil
+            } else {
+                let value = Value()
+                try value.output(from: output.nested(self.key), db: db)
+                self.value = value
             }
         } else {
-            fatalError("Missing value for path: \(existsPath)")
+            let existsPath = path + [$exists.key]
+            if output.contains(existsPath) {
+                if try output.decode(existsPath, as: Bool.self) == true {
+                    let value = Value()
+                    try value.output(from: output.nested(self.key), db: db)
+                    self.value = value
+                } else {
+                    self.value = nil
+                }
+            } else {
+                fatalError("Missing value for path: \(existsPath)")
+            }
         }
     }
 

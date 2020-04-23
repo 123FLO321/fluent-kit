@@ -167,7 +167,7 @@ public final class QueryBuilder<Model>
         copy.query.fields = [.path(Joined.path(for: field), schema: Joined.schemaOrAlias)]
         return copy.all().flatMapThrowing {
             try $0.map {
-                try $0.joined(Joined.self)[keyPath: field].value!
+                try $0.joined(Joined.self, db: self.database)[keyPath: field].value!
             }
         }
     }
@@ -192,7 +192,7 @@ public final class QueryBuilder<Model>
         let done = self.run { output in
             onOutput(.init(catching: {
                 let model = Model()
-                try model.output(from: output.schema(Model.schema))
+                try model.output(from: output.schema(Model.schema), db: self.database)
                 all.append(model)
                 return model
             }))
@@ -251,7 +251,7 @@ public final class QueryBuilder<Model>
             if !forceDelete {
                 model.touchTimestamps(.delete, .update)
                 query.action = .update
-                query.input = [.dictionary(model.input.values)]
+                query.input = [.dictionary(model.input(db: self.database).values)]
             }
         case .create:
             var data: [DatabaseQuery.Value] = []

@@ -61,12 +61,12 @@ extension OptionalParentProperty: AnyProperty {
         []
     }
     
-    public func input(to input: inout DatabaseInput) {
-        self.$id.input(to: &input)
+    public func input(to input: inout DatabaseInput, db: Database) {
+        self.$id.input(to: &input, db: db)
     }
 
-    public func output(from output: DatabaseOutput) throws {
-        try self.$id.output(from: output)
+    public func output(from output: DatabaseOutput, db: Database) throws {
+        try self.$id.output(from: output, db: db)
     }
 
     public func encode(to encoder: Encoder) throws {

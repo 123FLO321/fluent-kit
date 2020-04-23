@@ -2,6 +2,8 @@ import NIO
 
 public struct DummyDatabase: Database {
     public var context: DatabaseContext
+
+    public var type = DatabaseType.sql
     
     public init(context: DatabaseContext? = nil) {
         self.context = context ?? .init(
@@ -89,6 +91,10 @@ public struct DummyRow: DatabaseOutput {
 
     public func contains(_ path: [FieldKey]) -> Bool {
         return true
+    }
+
+    public func decodeNil(_ path: [FieldKey]) -> Bool {
+        return false
     }
     
     public var description: String {

@@ -91,6 +91,7 @@ extension TestDatabase {
 private struct _TestDatabase: Database {
     let test: TestDatabase
     var context: DatabaseContext
+    let type: DatabaseType = .sql
 
     func execute(
         query: DatabaseQuery,
@@ -174,6 +175,10 @@ public struct TestOutput: DatabaseOutput {
 
     public func contains(_ path: [FieldKey]) -> Bool {
         return true
+    }
+
+    public func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        return false
     }
 
     public var description: String {

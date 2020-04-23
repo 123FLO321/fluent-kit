@@ -31,6 +31,16 @@ private struct CombinedOutput: DatabaseOutput {
         }
     }
 
+    func decodeNil(_ path: [FieldKey]) throws -> Bool {
+         if self.first.contains(path) {
+            return try self.first.decodeNil(path)
+         } else if self.second.contains(path) {
+            return try self.second.decodeNil(path)
+         } else {
+            throw FluentError.missingField(name: path.description)
+        }
+    }
+
     var description: String {
         return self.first.description + " -> " + self.second.description
     }

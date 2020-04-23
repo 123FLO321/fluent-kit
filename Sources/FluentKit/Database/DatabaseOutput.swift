@@ -3,6 +3,7 @@ public protocol DatabaseOutput: CustomStringConvertible {
     func contains(_ path: [FieldKey]) -> Bool
     func decode<T>(_ path: [FieldKey], as type: T.Type) throws -> T
         where T: Decodable
+    func decodeNil(_ path: [FieldKey]) throws -> Bool
 }
 
 extension DatabaseOutput {

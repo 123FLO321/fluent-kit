@@ -43,11 +43,11 @@ extension NestedProperty: AnyProperty {
         fatalError()
     }
 
-    public func input(to input: inout DatabaseInput) {
+    public func input(to input: inout DatabaseInput, db: Database) {
         fatalError()
     }
 
-    public func output(from output: DatabaseOutput) throws {
+    public func output(from output: DatabaseOutput, db: Database) throws {
         fatalError()
     }
 

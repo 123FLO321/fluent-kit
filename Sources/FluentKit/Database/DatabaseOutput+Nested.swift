@@ -25,4 +25,8 @@ private struct NestedOutput: DatabaseOutput {
     {
         try self.wrapped.decode([self.prefix] + path)
     }
+
+    func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        return try self.wrapped.decodeNil([self.prefix] + path)
+    }
 }
