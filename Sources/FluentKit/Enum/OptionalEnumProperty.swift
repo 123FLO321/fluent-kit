@@ -77,7 +77,7 @@ extension OptionalEnumProperty: AnyProperty {
         []
     }
 
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         self.field.input(to: &input, db: db)
     }
 

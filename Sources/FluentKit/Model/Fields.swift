@@ -12,11 +12,11 @@ extension Fields {
 
     /// Indicates whether the model has fields that have been set, but the model
     /// has not yet been saved to the database.
-    public func hasChanges(db: Database) -> Bool {
+    public func hasChanges(db: Database?) -> Bool {
         return !self.input(db: db).values.isEmpty
     }
 
-    public func input(db: Database) -> DatabaseInput {
+    public func input(db: Database?) -> DatabaseInput {
         var input = DatabaseInput()
         self.properties.forEach { field in
             field.input(to: &input, db: db)

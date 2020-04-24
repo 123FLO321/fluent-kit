@@ -57,7 +57,7 @@ extension GroupProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         let values = self.value!.input(db: db).values
         if !values.isEmpty {
             input.values[self.key] = .dictionary(values)

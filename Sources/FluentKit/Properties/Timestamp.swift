@@ -70,7 +70,7 @@ extension TimestampProperty: AnyProperty {
         self.field.path
     }
     
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         switch self.field.inputValue {
         case .bind(_):
             let timestamp = self.value.flatMap { date in self.formatter.anyTimestamp(from: date) }

@@ -70,7 +70,7 @@ extension FieldProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         input.values[self.key] = self.inputValue
     }
 

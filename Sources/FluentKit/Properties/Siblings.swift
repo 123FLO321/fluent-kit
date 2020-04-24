@@ -189,7 +189,7 @@ extension SiblingsProperty: AnyProperty {
         []
     }
     
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         // siblings never has input
     }
 

@@ -12,7 +12,7 @@ public protocol AnyProperty: class {
     var path: [FieldKey] { get }
     var nested: [AnyProperty] { get }
 
-    func input(to input: inout DatabaseInput, db: Database)
+    func input(to input: inout DatabaseInput, db: Database?)
     func output(from output: DatabaseOutput, db: Database) throws
     func encode(to encoder: Encoder) throws
     func decode(from decoder: Decoder) throws

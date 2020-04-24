@@ -62,7 +62,7 @@ extension ParentProperty: AnyProperty {
         []
     }
     
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         self.$id.input(to: &input, db: db)
     }
 

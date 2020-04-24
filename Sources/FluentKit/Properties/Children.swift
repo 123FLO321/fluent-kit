@@ -106,7 +106,7 @@ extension ChildrenProperty: AnyProperty {
         []
     }
 
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         // children never has input
     }
 

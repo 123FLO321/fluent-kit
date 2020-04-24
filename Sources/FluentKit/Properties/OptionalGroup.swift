@@ -54,13 +54,13 @@ extension OptionalGroupProperty: AnyProperty {
         [self.key]
     }
 
-    public func input(to input: inout DatabaseInput, db: Database) {
+    public func input(to input: inout DatabaseInput, db: Database?) {
         if var values = self.value?.input(db: db).values {
-            if db.type != .nosql {
+            if db?.type != .nosql {
                 values[$exists.key] = .bind(true)
             }
             input.values[self.key] = .dictionary(values)
-        } else if db.type == .nosql {
+        } else if db?.type == .nosql {
             input.values[self.key] = .null
         } else {
             input.values[self.key] = .dictionary([$exists.key: .bind(false)])
