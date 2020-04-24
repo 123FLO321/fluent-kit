@@ -251,7 +251,7 @@ public final class QueryBuilder<Model>
             if !forceDelete {
                 model.touchTimestamps(.delete, .update)
                 query.action = .update
-                query.input = [.dictionary(model.input.values)]
+                query.input = [.dictionary(model.input(database: database).values)]
             }
         case .create:
             var data: [DatabaseQuery.Value] = []

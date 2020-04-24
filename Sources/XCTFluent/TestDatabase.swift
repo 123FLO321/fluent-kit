@@ -90,6 +90,7 @@ extension TestDatabase {
 
 private struct _TestDatabase: Database {
     let test: TestDatabase
+    let type: DatabaseType = .sql
     var context: DatabaseContext
 
     func execute(
@@ -159,6 +160,8 @@ public enum TestDatabaseError: Error {
 }
 
 public struct TestOutput: DatabaseOutput {
+    public var database: Database
+
     public func schema(_ schema: String) -> DatabaseOutput {
         self
     }
@@ -172,6 +175,10 @@ public struct TestOutput: DatabaseOutput {
         throw TestRowDecodeError.wrongType
     }
 
+    public func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        return false
+    }
+
     public func contains(_ path: [FieldKey]) -> Bool {
         return true
     }
@@ -182,19 +189,22 @@ public struct TestOutput: DatabaseOutput {
 
     var dummyDecodedFields: [[FieldKey]: Any]
 
-    public init() {
+    public init(database: Database) {
         self.dummyDecodedFields = [:]
+        self.database = database
     }
 
-    public init(_ mockFields: [[FieldKey]: Any]) {
+    public init(_ mockFields: [[FieldKey]: Any], database: Database) {
         self.dummyDecodedFields = mockFields
+        self.database = database
     }
 
-    public init(_ mockFields: [FieldKey: Any]) {
+    public init(_ mockFields: [FieldKey: Any], database: Database) {
         self.dummyDecodedFields = Dictionary(
             mockFields.map { (k, v) in ([k], v) },
             uniquingKeysWith: { $1 }
         )
+        self.database = database
     }
 
     public mutating func append(key: [FieldKey], value: Any) {

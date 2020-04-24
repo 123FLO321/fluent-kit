@@ -28,7 +28,7 @@ public final class OptionalGroupProperty<Model, Value>
 
     public init(key: FieldKey, existsKey: FieldKey = .string("exists")) {
         self.key = key
-        self._exists = .init(key: key)
+        self._exists = .init(key: existsKey)
         self.value = .init()
     }
 
@@ -55,26 +55,40 @@ extension OptionalGroupProperty: AnyProperty {
     }
 
     public func input(to input: inout DatabaseInput) {
-        if var values = self.value?.input.values, !values.isEmpty {
-            values[$exists.key] = .bind(true)
+        if var values = self.value?.input(database: input.database).values {
+            if input.database?.type != .nosql {
+                values[$exists.key] = .bind(true)
+            }
             input.values[self.key] = .dictionary(values)
+        } else if input.database?.type == .nosql {
+            input.values[self.key] = .null
         } else {
             input.values[self.key] = .dictionary([$exists.key: .bind(false)])
         }
     }
 
     public func output(from output: DatabaseOutput) throws {
-        let existsPath = path + [$exists.key]
-        if output.contains(existsPath) {
-            if try output.decode(existsPath, as: Bool.self) == true {
+        if output.database.type == .nosql {
+            if try output.decodeNil(self.path) {
+                self.value = nil
+            } else {
                 let value = Value()
                 try value.output(from: output.nested(self.key))
                 self.value = value
-            } else {
-                self.value = nil
             }
         } else {
-            fatalError("Missing value for path: \(existsPath)")
+            let existsPath = path + [$exists.key]
+            if output.contains(existsPath) {
+                if try output.decode(existsPath, as: Bool.self) == true {
+                    let value = Value()
+                    try value.output(from: output.nested(self.key))
+                    self.value = value
+                } else {
+                    self.value = nil
+                }
+            } else {
+                fatalError("Missing value for path: \(existsPath)")
+            }
         }
     }
 

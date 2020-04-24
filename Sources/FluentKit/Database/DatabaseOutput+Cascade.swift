@@ -5,8 +5,15 @@ extension DatabaseOutput {
 }
 
 private struct CombinedOutput: DatabaseOutput {
+    var database: Database
     var first: DatabaseOutput
     var second: DatabaseOutput
+
+    init(first: DatabaseOutput, second: DatabaseOutput) {
+        self.database = first.database
+        self.first = first
+        self.second = second
+    }
 
     func contains(_ path: [FieldKey]) -> Bool {
         self.first.contains(path) || self.second.contains(path)
@@ -27,6 +34,16 @@ private struct CombinedOutput: DatabaseOutput {
         } else if self.second.contains(path) {
             return try self.second.decode(path)
         } else {
+            throw FluentError.missingField(name: path.description)
+        }
+    }
+
+    func decodeNil(_ path: [FieldKey]) throws -> Bool {
+         if self.first.contains(path) {
+            return try self.first.decodeNil(path)
+         } else if self.second.contains(path) {
+            return try self.second.decodeNil(path)
+         } else {
             throw FluentError.missingField(name: path.description)
         }
     }

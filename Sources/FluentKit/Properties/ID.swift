@@ -27,6 +27,7 @@ public final class IDProperty<Model, Value>
     public var exists: Bool
     let generator: Generator
     var cachedOutput: DatabaseOutput?
+    var cachedDatabase: Database?
 
     public var key: FieldKey {
         return self.field.key
@@ -76,6 +77,7 @@ public final class IDProperty<Model, Value>
         self.generator = generator ?? .default(for: Value.self)
         self.exists = false
         self.cachedOutput = nil
+        self.cachedDatabase = nil
     }
 
     func generate() {
@@ -141,6 +143,7 @@ extension IDProperty: AnyProperty {
     public func output(from output: DatabaseOutput) throws {
         self.exists = true
         self.cachedOutput = output
+        self.cachedDatabase = output.database
         try self.field.output(from: output)
     }
 
@@ -159,4 +162,5 @@ protocol AnyID {
     func generate()
     var exists: Bool { get set }
     var cachedOutput: DatabaseOutput? { get set }
+    var cachedDatabase: Database? { get set }
 }

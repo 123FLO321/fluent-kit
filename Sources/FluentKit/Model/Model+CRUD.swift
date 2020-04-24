@@ -19,17 +19,17 @@ extension Model {
         self._$id.generate()
         let promise = database.eventLoop.makePromise(of: DatabaseOutput.self)
         Self.query(on: database)
-            .set(self.input.values)
+            .set(self.input(database: database).values)
             .action(.create)
             .run { promise.succeed($0) }
             .cascadeFailure(to: promise)
         return promise.futureResult.flatMapThrowing { output in
-            var input = self.input
+            var input = self.input(database: database)
             if self._$id.generator == .database {
                 let idKey = Self()._$id.key
                 input.values[idKey] = try .bind(output.decode(idKey, as: Self.IDValue.self))
             }
-            try self.output(from: SavedInput(input.values))
+            try self.output(from: SavedInput(input.values, database: database))
         }
     }
 
@@ -45,7 +45,7 @@ extension Model {
         guard self.hasChanges else {
             return database.eventLoop.makeSucceededFuture(())
         }
-        let input = self.input
+        let input = self.input(database: database)
         return Self.query(on: database)
             .filter(\._$id == self.id!)
             .set(input.values)
@@ -53,7 +53,7 @@ extension Model {
             .run()
             .flatMapThrowing
         {
-            try self.output(from: SavedInput(input.values))
+            try self.output(from: SavedInput(input.values, database: database))
         }
     }
 
@@ -105,12 +105,12 @@ extension Model {
         return Self.query(on: database)
             .withDeleted()
             .filter(\._$id == self.id!)
-            .set(self.input.values)
+            .set(self.input(database: database).values)
             .action(.update)
             .run()
             .flatMapThrowing
         {
-            try self.output(from: SavedInput(self.input.values))
+            try self.output(from: SavedInput(self.input(database: database).values, database: database))
             self._$id.exists = true
         }
     }
@@ -148,7 +148,7 @@ extension Array where Element: FluentKit.Model {
             $0._$id.generate()
             $0.touchTimestamps(.create, .update)
         }
-        builder.set(self.map { $0.input.values })
+        builder.set(self.map { $0.input(database: database).values })
         builder.query.action = .create
         var it = self.makeIterator()
         return builder.run { _ in
@@ -163,9 +163,11 @@ extension Array where Element: FluentKit.Model {
 
 private struct SavedInput: DatabaseOutput {
     var input: [FieldKey: DatabaseQuery.Value]
+    var database: Database
     
-    init(_ input: [FieldKey: DatabaseQuery.Value]) {
+    init(_ input: [FieldKey: DatabaseQuery.Value], database: Database) {
         self.input = input
+        self.database = database
     }
 
     func schema(_ schema: String) -> DatabaseOutput {
@@ -188,6 +190,19 @@ private struct SavedInput: DatabaseOutput {
                 return string as! T
             default:
                 fatalError("Invalid input type: \(value)")
+            }
+        } else {
+            throw FluentError.missingField(name: path.description)
+        }
+    }
+
+    func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        if let value = get(path: path, from: .dictionary(self.input)) {
+            switch value {
+            case .null:
+                return true
+            default:
+                return false
             }
         } else {
             throw FluentError.missingField(name: path.description)

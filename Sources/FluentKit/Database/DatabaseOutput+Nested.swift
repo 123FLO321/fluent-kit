@@ -5,8 +5,15 @@ extension DatabaseOutput {
 }
 
 private struct NestedOutput: DatabaseOutput {
+    let database: Database
     let wrapped: DatabaseOutput
     let prefix: FieldKey
+
+    init(wrapped: DatabaseOutput, prefix: FieldKey) {
+        self.database = wrapped.database
+        self.wrapped = wrapped
+        self.prefix = prefix
+    }
 
     var description: String {
         self.wrapped.description
@@ -24,5 +31,9 @@ private struct NestedOutput: DatabaseOutput {
         where T : Decodable
     {
         try self.wrapped.decode([self.prefix] + path)
+    }
+
+    func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        return try self.wrapped.decodeNil([self.prefix] + path)
     }
 }

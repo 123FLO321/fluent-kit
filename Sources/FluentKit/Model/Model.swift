@@ -4,6 +4,17 @@ public protocol Model: AnyModel {
 }
 
 extension Model {
+
+    /// Indicates whether the model has fields that have been set, but the model
+    /// has not yet been saved to the database.
+    public var hasChanges: Bool {
+        return !self.input.values.isEmpty
+    }
+
+    public var input: DatabaseInput {
+        self.input(database: self.anyID.cachedDatabase)
+    }
+
     public static func query(on database: Database) -> QueryBuilder<Self> {
         .init(database: database)
     }

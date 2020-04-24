@@ -2,6 +2,7 @@ import NIO
 
 public struct DummyDatabase: Database {
     public var context: DatabaseContext
+    public let type: DatabaseType = .sql
     
     public init(context: DatabaseContext? = nil) {
         self.context = context ?? .init(
@@ -13,7 +14,7 @@ public struct DummyDatabase: Database {
     
     public func execute(query: DatabaseQuery, onOutput: @escaping (DatabaseOutput) -> ()) -> EventLoopFuture<Void> {
         for _ in 0..<Int.random(in: 1..<42) {
-            onOutput(DummyRow())
+            onOutput(DummyRow(database: self))
         }
         return self.eventLoop.makeSucceededFuture(())
     }
@@ -71,7 +72,7 @@ public final class DummyDatabaseDriver: DatabaseDriver {
 // MARK: Private
 
 public struct DummyRow: DatabaseOutput {
-    public init() { }
+    public let database: Database
 
     public func schema(_ schema: String) -> DatabaseOutput {
         self
@@ -85,6 +86,10 @@ public struct DummyRow: DatabaseOutput {
         } else {
             return try T(from: DummyDecoder())
         }
+    }
+
+    public func decodeNil(_ path: [FieldKey]) throws -> Bool {
+        return false
     }
 
     public func contains(_ path: [FieldKey]) -> Bool {
